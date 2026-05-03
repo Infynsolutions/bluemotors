@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "vehicles" ADD COLUMN     "isPedido" BOOLEAN NOT NULL DEFAULT false,
+ALTER COLUMN "vin" DROP NOT NULL;
