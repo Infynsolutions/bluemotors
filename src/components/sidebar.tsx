@@ -15,65 +15,36 @@ import {
   Settings,
   LogOut,
   ChevronRight,
+  BookUser,
+  UserCog,
 } from "lucide-react";
 import type { Role } from "@/generated/prisma/client";
 
-const NAV = [
-  {
-    href: "/dashboard",
-    label: "Dashboard",
-    icon: LayoutDashboard,
-    roles: ["admin", "gerente"] as Role[],
-  },
-  {
-    href: "/ventas",
-    label: "Ventas",
-    icon: Car,
-    roles: null,
-  },
-  {
-    href: "/stock",
-    label: "Stock",
-    icon: Package,
-    roles: null,
-  },
-  {
-    href: "/clientes",
-    label: "Clientes",
-    icon: Users,
-    roles: null,
-  },
-  {
-    href: "/repuestos",
-    label: "Repuestos",
-    icon: Wrench,
-    roles: null,
-  },
-  {
-    href: "/repuestos/ventas",
-    label: "Ventas repuestos",
-    icon: ShoppingCart,
-    roles: null,
-  },
-  {
-    href: "/postventa",
-    label: "Postventa",
-    icon: ClipboardList,
-    roles: null,
-  },
-  {
-    href: "/impuestos",
-    label: "Impuestos",
-    icon: Receipt,
-    roles: ["admin", "gerente"] as Role[],
-  },
-  {
-    href: "/configuracion/empresas",
-    label: "Configuración",
-    icon: Settings,
-    roles: ["admin", "gerente"] as Role[],
-  },
-] satisfies { href: string; label: string; icon: React.ElementType; roles: Role[] | null }[];
+type NavItem =
+  | { type: "link"; href: string; label: string; icon: React.ElementType; roles: Role[] | null }
+  | { type: "separator"; label: string; roles: Role[] | null };
+
+const NAV: NavItem[] = [
+  { type: "link", href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["admin", "gerente"] },
+
+  { type: "separator", label: "Comercial", roles: null },
+  { type: "link", href: "/ventas",           label: "Ventas",         icon: Car,         roles: null },
+  { type: "link", href: "/clientes",         label: "Clientes",       icon: Users,       roles: null },
+  { type: "link", href: "/cuenta-corriente", label: "Cta. corriente", icon: BookUser,    roles: null },
+
+  { type: "separator", label: "Inventario", roles: null },
+  { type: "link", href: "/stock",           label: "Stock vehículos",  icon: Package,     roles: null },
+  { type: "link", href: "/repuestos",       label: "Repuestos",        icon: Wrench,      roles: null },
+  { type: "link", href: "/repuestos/ventas",label: "Ventas repuestos", icon: ShoppingCart,roles: null },
+
+  { type: "separator", label: "Taller", roles: null },
+  { type: "link", href: "/postventa", label: "Postventa", icon: ClipboardList, roles: null },
+
+  { type: "separator", label: "Admin", roles: ["admin", "gerente"] },
+  { type: "link", href: "/impuestos",              label: "Impuestos",     icon: Receipt,  roles: ["admin", "gerente"] },
+  { type: "link", href: "/configuracion/usuarios", label: "Usuarios",      icon: UserCog,  roles: ["admin"] },
+  { type: "link", href: "/configuracion/empresas", label: "Configuración", icon: Settings, roles: ["admin", "gerente"] },
+];
 
 const ROLE_LABEL: Record<Role, string> = {
   vendedor: "Vendedor",
@@ -88,7 +59,7 @@ interface SidebarProps {
 export function Sidebar({ user }: SidebarProps) {
   const pathname = usePathname();
 
-  const links = NAV.filter(({ roles }) => !roles || roles.includes(user.role));
+  const visible = NAV.filter((item) => !item.roles || item.roles.includes(user.role));
 
   return (
     <aside className="w-56 shrink-0 flex flex-col min-h-screen border-r bg-background">
@@ -99,20 +70,27 @@ export function Sidebar({ user }: SidebarProps) {
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-0.5">
-        {links.map(({ href, label, icon: Icon }) => {
-          const isActive = pathname.startsWith(href);
+        {visible.map((item, i) => {
+          if (item.type === "separator") {
+            return (
+              <p key={i} className="px-3 pt-4 pb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50 select-none">
+                {item.label}
+              </p>
+            );
+          }
+          const isActive = pathname.startsWith(item.href);
           return (
             <Link
-              key={href}
-              href={href}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors group ${
+              key={item.href}
+              href={item.href}
+              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                 isActive
                   ? "bg-foreground text-background"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted"
               }`}
             >
-              <Icon size={16} className="shrink-0" />
-              <span className="flex-1">{label}</span>
+              <item.icon size={16} className="shrink-0" />
+              <span className="flex-1">{item.label}</span>
               {isActive && <ChevronRight size={14} className="opacity-60" />}
             </Link>
           );

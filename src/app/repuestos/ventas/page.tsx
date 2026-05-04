@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/format";
 import { NuevaVentaRepuestosDialog } from "@/components/nueva-venta-repuestos-dialog";
+import { VentasRepuestosFiltros } from "@/components/ventas-repuestos-filtros";
 import { cancelarVenta } from "@/app/actions/venta-repuestos";
 
 export const dynamic = "force-dynamic";
@@ -23,17 +24,33 @@ const STATUS_COLOR: Record<string, string> = {
 export default async function VentasRepuestosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ estado?: string }>;
+  searchParams: Promise<{ estado?: string; q?: string; desde?: string; hasta?: string }>;
 }) {
   const session = await auth();
   if (!session) redirect("/login");
 
-  const { estado } = await searchParams;
+  const { estado, q, desde, hasta } = await searchParams;
   const isAdmin = ["admin", "gerente"].includes(session.user.role);
+
+  const dateWhere = desde || hasta ? {
+    createdAt: {
+      ...(desde ? { gte: new Date(desde) } : {}),
+      ...(hasta ? { lte: new Date(`${hasta}T23:59:59`) } : {}),
+    },
+  } : {};
 
   const [sales, parts, clients] = await Promise.all([
     prisma.partSale.findMany({
-      where: estado ? { status: estado as never } : { status: { not: "CANCELLED" } },
+      where: {
+        ...(estado ? { status: estado as never } : { status: { not: "CANCELLED" } }),
+        ...dateWhere,
+        ...(q ? {
+          OR: [
+            { clientName: { contains: q, mode: "insensitive" } },
+            { saleNumber: { contains: q, mode: "insensitive" } },
+          ],
+        } : {}),
+      },
       include: {
         items: { include: { part: { select: { code: true, name: true, unit: true } } } },
         client: { select: { name: true } },
@@ -69,6 +86,11 @@ export default async function VentasRepuestosPage({
           <NuevaVentaRepuestosDialog parts={serializedParts} clients={clients} />
         </Suspense>
       </div>
+
+      {/* Filtros de búsqueda y fecha */}
+      <Suspense>
+        <VentasRepuestosFiltros />
+      </Suspense>
 
       {/* Filtros de estado */}
       <div className="flex gap-2 flex-wrap">

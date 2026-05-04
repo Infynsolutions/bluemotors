@@ -73,6 +73,8 @@ export default async function DashboardPage({
     partSalesLastMonth,
     fichasActivas,
     repuestosBajoStock,
+    cuentaCorrienteDeuda,
+    cuentaCorrientePagos,
   ] = await Promise.all([
     // Ventas del período seleccionado
     prisma.sale.findMany({
@@ -149,6 +151,23 @@ export default async function DashboardPage({
       SELECT COUNT(*) as count FROM parts
       WHERE active = true AND (stock = 0 OR ("minStock" > 0 AND stock <= "minStock"))
     `.then((r) => Number(r[0].count)),
+    // Cuenta corriente: total deudas pendientes
+    prisma.$queryRaw<[{ total: string }]>`
+      SELECT COALESCE(SUM(t.amount), 0) AS total
+      FROM (
+        SELECT si."totalAmount" AS amount
+        FROM service_invoices si
+        WHERE si.status::text = 'PENDING' AND si."paymentMethod" = 'cuenta_corriente'
+        UNION ALL
+        SELECT ps."totalAmount" AS amount
+        FROM part_sales ps
+        WHERE ps.status::text = 'PENDING' AND ps."paymentMethod" = 'cuenta_corriente'
+      ) t
+    `.then((r) => Number(r[0].total)),
+    // Cuenta corriente: total pagos registrados
+    prisma.$queryRaw<[{ total: string }]>`
+      SELECT COALESCE(SUM(amount), 0) AS total FROM cuenta_corriente_pagos
+    `.then((r) => Number(r[0].total)),
   ]);
 
   // ── Métricas ─────────────────────────────────────────────────────────────────
@@ -213,15 +232,14 @@ export default async function DashboardPage({
   const montoRepuestosLast = partSalesLastMonth
     .reduce((s, i) => s + Number(i.totalAmount), 0);
 
-  const montoServicios = montoPostventa + montoRepuestos;
-  const montoServiciosLast = montoPostventaLast + montoRepuestosLast;
-
   const fichasActivasCount = fichasActivas.reduce((s, g) => s + g._count, 0);
   const fichasMap = Object.fromEntries(fichasActivas.map((g) => [g.status, g._count]));
 
-  const deltaServicios = showDeltas ? delta(montoServicios, montoServiciosLast) : null;
   const deltaPostventa = showDeltas ? delta(montoPostventa, montoPostventaLast) : null;
   const deltaRepuestos = showDeltas ? delta(montoRepuestos, montoRepuestosLast) : null;
+
+  // ── Cuenta corriente ──────────────────────────────────────────────────────────
+  const saldoCuentaCorriente = cuentaCorrienteDeuda - cuentaCorrientePagos;
 
   // ── Estancadas ────────────────────────────────────────────────────────────────
   const staleWithStep = staleSales.map((s) => ({
@@ -249,45 +267,42 @@ export default async function DashboardPage({
         </Suspense>
       </div>
 
-      {/* ── Métricas del mes ── */}
-      <div className="grid grid-cols-4 gap-4">
-        <MetricCard
-          label="Ventas este mes"
-          value={cntThis.toString()}
-          sub={`${cntLast} el mes pasado`}
-          delta={deltaVentas}
-        />
-        <MetricCard
-          label="Monto total"
-          value={formatCurrency(montoThis)}
-          sub={formatCurrency(montoLast) + " el mes pasado"}
-          delta={deltaMonto}
-        />
-        <MetricCard
-          label="Ticket promedio"
-          value={ticketThis > 0 ? formatCurrency(ticketThis) : "—"}
-          sub={ticketLast > 0 ? formatCurrency(ticketLast) + " el mes pasado" : ""}
-          delta={deltaTicket}
-        />
-        <MetricCard
-          label="Ventas activas"
-          value={activeSalesCount.toString()}
-          sub="en proceso"
-          delta={null}
-          neutral
-        />
-      </div>
-
-      {/* ── Servicios: Postventa + Repuestos ── */}
+      {/* ── Ventas de vehículos ── */}
       <div className="space-y-3">
-        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Servicios y repuestos</h2>
+        <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Ventas de vehículos</h2>
         <div className="grid grid-cols-4 gap-4">
           <MetricCard
-            label="Total servicios"
-            value={formatCurrency(montoServicios)}
-            sub={formatCurrency(montoServiciosLast) + " el mes pasado"}
-            delta={deltaServicios}
+            label="Ventas del período"
+            value={cntThis.toString()}
+            sub={`${cntLast} el mes pasado`}
+            delta={deltaVentas}
           />
+          <MetricCard
+            label="Monto total"
+            value={formatCurrency(montoThis)}
+            sub={formatCurrency(montoLast) + " el mes pasado"}
+            delta={deltaMonto}
+          />
+          <MetricCard
+            label="Ticket promedio"
+            value={ticketThis > 0 ? formatCurrency(ticketThis) : "—"}
+            sub={ticketLast > 0 ? formatCurrency(ticketLast) + " el mes pasado" : ""}
+            delta={deltaTicket}
+          />
+          <MetricCard
+            label="Ventas activas"
+            value={activeSalesCount.toString()}
+            sub="en proceso"
+            delta={null}
+            neutral
+          />
+        </div>
+      </div>
+
+      {/* ── Servicios: Postventa + Repuestos + Cta. cte. ── */}
+      <div className="space-y-3">
+        <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Servicios y repuestos</h2>
+        <div className="grid grid-cols-4 gap-4">
           <MetricCard
             label="Postventa cobrado"
             value={formatCurrency(montoPostventa)}
@@ -300,16 +315,27 @@ export default async function DashboardPage({
             sub={formatCurrency(montoRepuestosLast) + " el mes pasado"}
             delta={deltaRepuestos}
           />
+          {/* Cuenta corriente */}
+          <a href="/cuenta-corriente" className="rounded-xl border p-5 space-y-1 hover:bg-muted/30 transition-colors block">
+            <p className="text-xs text-muted-foreground">Cta. corriente pendiente</p>
+            <p className={`text-2xl font-bold ${saldoCuentaCorriente > 0 ? "text-red-600" : ""}`}>
+              {formatCurrency(saldoCuentaCorriente)}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {saldoCuentaCorriente > 0 ? "a cobrar → ver clientes" : "sin saldo pendiente"}
+            </p>
+          </a>
+          {/* Fichas postventa activas */}
           <div className="rounded-xl border p-5 space-y-3">
             <p className="text-xs text-muted-foreground">Fichas postventa activas</p>
             <p className="text-2xl font-bold">{fichasActivasCount}</p>
             <div className="space-y-1">
               {[
-                { key: "PENDING",          label: "Sin turno",      color: "bg-muted" },
-                { key: "APPOINTMENT_SET",  label: "Con turno",      color: "bg-blue-400" },
-                { key: "IN_TRANSIT",       label: "En traslado",    color: "bg-amber-400" },
-                { key: "AT_WORKSHOP",      label: "En taller",      color: "bg-purple-400" },
-                { key: "COMPLETED",        label: "Trabajo listo",  color: "bg-green-400" },
+                { key: "PENDING",          label: "Sin turno",     color: "bg-muted" },
+                { key: "APPOINTMENT_SET",  label: "Con turno",     color: "bg-blue-400" },
+                { key: "IN_TRANSIT",       label: "En traslado",   color: "bg-amber-400" },
+                { key: "AT_WORKSHOP",      label: "En taller",     color: "bg-purple-400" },
+                { key: "COMPLETED",        label: "Trabajo listo", color: "bg-green-400" },
               ].filter((s) => fichasMap[s.key] > 0).map((s) => (
                 <div key={s.key} className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-1.5">
@@ -319,18 +345,27 @@ export default async function DashboardPage({
                   <span className="font-semibold">{fichasMap[s.key]}</span>
                 </div>
               ))}
-              {(repuestosBajoStock as number) > 0 && (
-                <div className="pt-1 border-t mt-1">
-                  <a href="/repuestos" className="flex items-center justify-between text-xs hover:text-foreground transition-colors">
-                    <span className="text-amber-600">⚠ Stock bajo/sin stock</span>
-                    <span className="font-semibold text-amber-600">{repuestosBajoStock as number} art.</span>
-                  </a>
-                </div>
-              )}
             </div>
           </div>
         </div>
       </div>
+
+      {/* ── Alerta stock bajo (si hay) ── */}
+      {(repuestosBajoStock as number) > 0 && (
+        <a
+          href="/repuestos"
+          className="flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-5 py-3 hover:bg-amber-100 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-amber-600 text-lg">⚠</span>
+            <div>
+              <p className="text-sm font-medium text-amber-800">Stock bajo o sin stock en repuestos</p>
+              <p className="text-xs text-amber-600">Revisá el inventario antes de recibir nuevas fichas</p>
+            </div>
+          </div>
+          <span className="text-amber-700 font-bold tabular-nums">{repuestosBajoStock as number} artículos →</span>
+        </a>
+      )}
 
       {/* ── Embudo + Stock ── */}
       <div className="grid grid-cols-3 gap-6">
@@ -361,9 +396,9 @@ export default async function DashboardPage({
           </div>
         </div>
 
-        {/* Stock */}
+        {/* Stock vehículos */}
         <div className="rounded-xl border p-5 space-y-4">
-          <h2 className="font-semibold text-sm">Stock</h2>
+          <h2 className="font-semibold text-sm">Stock vehículos</h2>
           <div className="space-y-3">
             <div>
               <p className="text-xs text-muted-foreground mb-1.5">0 km</p>
@@ -385,9 +420,12 @@ export default async function DashboardPage({
       <div className="grid grid-cols-2 gap-6">
         {/* Ranking vendedores */}
         <div className="rounded-xl border p-5 space-y-4">
-          <h2 className="font-semibold text-sm">Ranking vendedores <span className="font-normal text-muted-foreground">(este mes)</span></h2>
+          <h2 className="font-semibold text-sm">
+            Ranking vendedores{" "}
+            <span className="font-normal text-muted-foreground">({periodoLabel})</span>
+          </h2>
           {ranking.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Sin ventas este mes.</p>
+            <p className="text-sm text-muted-foreground">Sin ventas en este período.</p>
           ) : (
             <div className="space-y-3">
               {ranking.map((v, i) => (
@@ -413,7 +451,7 @@ export default async function DashboardPage({
           )}
         </div>
 
-        {/* Alertas estancadas */}
+        {/* Ventas estancadas */}
         <div className="rounded-xl border p-5 space-y-4">
           <h2 className="font-semibold text-sm">
             Ventas estancadas{" "}
