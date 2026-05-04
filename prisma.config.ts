@@ -6,8 +6,8 @@ export default defineConfig({
   migrations: {
     path: "prisma/migrations",
   },
-  // DIRECT_URL: Supabase direct connection (bypasses pgBouncer) — used for migrations only
+  // DIRECT_URL para migrations (bypassa pgBouncer); cae en DATABASE_URL en Vercel donde no hay .env
   datasource: {
-    url: process.env["DIRECT_URL"],
+    url: process.env["DIRECT_URL"] ?? process.env["DATABASE_URL"],
   },
 });
