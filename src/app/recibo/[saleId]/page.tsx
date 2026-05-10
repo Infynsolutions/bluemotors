@@ -85,7 +85,11 @@ export default async function ReciboPage({
         {/* Header */}
         <div className="flex items-start justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">BLUE MOTORS</h1>
+            <img
+              src="/LOGO.png"
+              alt="Blue Motors"
+              style={{ width: '180px', mixBlendMode: 'multiply' }}
+            />
             <p className="text-xs text-gray-500 mt-0.5">Concesionaria DFSK — Tucumán, Argentina</p>
           </div>
           <div className="text-right">
