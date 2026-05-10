@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/format";
-import { ImpuestosClient } from "@/components/impuestos-client";
+import { ImpuestosClient } from "@/features/impuestos/components/impuestos-client";
 import type { TaxType } from "@/generated/prisma/client";
 
 export const dynamic = "force-dynamic";

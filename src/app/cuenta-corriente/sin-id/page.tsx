@@ -4,8 +4,8 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/format";
-import { RegistrarAbonoDialog } from "@/components/registrar-abono-dialog";
-import { SaldarFacturaBtn, SaldarVentaBtn } from "@/components/saldar-deuda-btn";
+import { RegistrarAbonoDialog } from "@/features/cuenta-corriente/components/registrar-abono-dialog";
+import { SaldarFacturaBtn, SaldarVentaBtn } from "@/features/cuenta-corriente/components/saldar-deuda-btn";
 
 export const dynamic = "force-dynamic";
 

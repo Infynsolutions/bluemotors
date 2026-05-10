@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { StockTabla } from "@/components/stock-tabla";
-import { getModelos, getUbicaciones } from "@/app/actions/stock";
+import { StockTabla } from "@/features/stock/components/stock-tabla";
+import { getModelos, getUbicaciones } from "@/features/stock/actions";
 
 export const dynamic = "force-dynamic";
 

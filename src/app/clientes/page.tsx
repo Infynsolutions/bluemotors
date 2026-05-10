@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { ClientesToolbar } from "@/components/clientes-toolbar";
+import { ClientesToolbar } from "@/features/clientes/components/clientes-toolbar";
 
 export const dynamic = "force-dynamic";
 

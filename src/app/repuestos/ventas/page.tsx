@@ -3,9 +3,9 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/format";
-import { NuevaVentaRepuestosDialog } from "@/components/nueva-venta-repuestos-dialog";
-import { VentasRepuestosFiltros } from "@/components/ventas-repuestos-filtros";
-import { cancelarVenta } from "@/app/actions/venta-repuestos";
+import { NuevaVentaRepuestosDialog } from "@/features/repuestos/components/nueva-venta-repuestos-dialog";
+import { VentasRepuestosFiltros } from "@/features/repuestos/components/ventas-repuestos-filtros";
+import { cancelarVenta } from "@/features/repuestos/actions/ventas";
 
 export const dynamic = "force-dynamic";
 

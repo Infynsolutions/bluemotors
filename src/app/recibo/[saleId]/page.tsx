@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/format";
-import { PrintButton } from "./print-button";
+import { PrintButtonPDF } from "@/components/print-button";
 
 const DOC_LABELS: Record<string, string> = {
   dni_front: "DNI (frente)",
@@ -76,7 +76,7 @@ export default async function ReciboPage({
             {sale.vehicle.brand} {sale.vehicle.model} {sale.vehicle.year}
           </span>
         </span>
-        <PrintButton />
+        <PrintButtonPDF />
       </div>
 
       {/* Receipt */}

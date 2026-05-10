@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { getCategorias, crearCategoria, eliminarCategoria } from "@/app/actions/repuestos";
-import { getProveedores, crearProveedor, editarProveedor } from "@/app/actions/compras";
+import { getCategorias, crearCategoria, eliminarCategoria } from "@/features/repuestos/actions/repuestos";
+import { getProveedores, crearProveedor, editarProveedor } from "@/features/repuestos/actions/compras";
 
 type Category = { id: string; name: string };
 type Supplier = { id: string; name: string; contactName: string | null; email: string | null; phone: string | null; cuit: string | null; address: string | null };

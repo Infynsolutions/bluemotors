@@ -3,8 +3,8 @@ import { Suspense } from "react";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { NuevaFichaPostventaDialog } from "@/components/nueva-ficha-postventa-dialog";
-import { PostventaFiltros } from "@/components/postventa-filtros";
+import { NuevaFichaPostventaDialog } from "@/features/postventa/components/nueva-ficha-postventa-dialog";
+import { PostventaFiltros } from "@/features/postventa/components/postventa-filtros";
 
 export const dynamic = "force-dynamic";
 

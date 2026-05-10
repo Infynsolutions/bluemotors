@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/format";
-import { OrdenCompraAcciones } from "@/components/orden-compra-acciones";
+import { OrdenCompraAcciones } from "@/features/repuestos/components/orden-compra-acciones";
 
 export const dynamic = "force-dynamic";
 

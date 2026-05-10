@@ -8,7 +8,7 @@ import {
   getModelos, getUbicaciones,
   agregarModelo, eliminarModelo,
   agregarUbicacion, eliminarUbicacion,
-} from "@/app/actions/stock";
+} from "@/features/stock/actions";
 
 type Item = { id: string; name: string; active: boolean };
 

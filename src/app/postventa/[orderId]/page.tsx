@@ -4,9 +4,9 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/format";
-import { PostventaAcciones } from "@/components/postventa-acciones";
+import { PostventaAcciones } from "@/features/postventa/components/postventa-acciones";
 import { STATUS_LABEL, STATUS_COLOR } from "@/app/postventa/page";
-import { WORKSHOP_NAMES } from "@/lib/postventa-constants";
+import { WORKSHOP_NAMES } from "@/features/postventa/constants";
 
 export const dynamic = "force-dynamic";
 

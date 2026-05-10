@@ -2,8 +2,8 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { SalesBoard } from "@/components/sales-board";
-import { VentasFiltros } from "@/components/ventas-filtros";
+import { SalesBoard } from "@/features/ventas/components/sales-board";
+import { VentasFiltros } from "@/features/ventas/components/ventas-filtros";
 
 export const dynamic = "force-dynamic";
 

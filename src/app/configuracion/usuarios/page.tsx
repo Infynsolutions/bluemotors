@@ -1,8 +1,8 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { UsuarioDialog } from "@/components/usuario-dialog";
-import { EliminarUsuarioBtn } from "@/components/eliminar-usuario-btn";
+import { UsuarioDialog } from "@/features/usuarios/components/usuario-dialog";
+import { EliminarUsuarioBtn } from "@/features/usuarios/components/eliminar-usuario-btn";
 
 export const dynamic = "force-dynamic";
 

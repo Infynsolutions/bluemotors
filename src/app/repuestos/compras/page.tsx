@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/format";
-import { NuevaOrdenCompraDialog } from "@/components/nueva-orden-compra-dialog";
+import { NuevaOrdenCompraDialog } from "@/features/repuestos/components/nueva-orden-compra-dialog";
 
 export const dynamic = "force-dynamic";
 

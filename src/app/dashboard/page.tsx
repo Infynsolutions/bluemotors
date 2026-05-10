@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/format";
-import { DashboardFiltros } from "@/components/dashboard-filtros";
+import { DashboardFiltros } from "@/features/dashboard/components/dashboard-filtros";
 
 export const dynamic = "force-dynamic";
 

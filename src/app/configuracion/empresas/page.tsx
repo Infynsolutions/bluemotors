@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { getEmpresas, actualizarEmpresa } from "@/app/actions/empresas";
+import { getEmpresas, actualizarEmpresa } from "@/features/empresas/actions";
 
 type Company = Awaited<ReturnType<typeof getEmpresas>>[number];
 

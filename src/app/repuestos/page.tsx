@@ -4,9 +4,9 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/format";
-import { NuevoArticuloDialog } from "@/components/nuevo-articulo-dialog";
-import { AjustarStockDialog } from "@/components/ajustar-stock-dialog";
-import { RepuestosFiltros } from "@/components/repuestos-filtros";
+import { NuevoArticuloDialog } from "@/features/repuestos/components/nuevo-articulo-dialog";
+import { AjustarStockDialog } from "@/features/repuestos/components/ajustar-stock-dialog";
+import { RepuestosFiltros } from "@/features/repuestos/components/repuestos-filtros";
 
 export const dynamic = "force-dynamic";
 
