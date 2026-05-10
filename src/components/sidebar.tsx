@@ -62,10 +62,17 @@ export function Sidebar({ user }: SidebarProps) {
   const visible = NAV.filter((item) => !item.roles || item.roles.includes(user.role));
 
   return (
-    <aside className="w-56 shrink-0 flex flex-col min-h-screen border-r bg-background">
+    <aside className="w-56 shrink-0 flex flex-col min-h-screen border-r bg-sidebar text-sidebar-foreground">
       {/* Logo */}
-      <div className="h-14 flex items-center px-5 border-b">
-        <span className="font-bold text-sm tracking-tight">Blue Motors SGI</span>
+      <div className="flex flex-col items-start px-4 pt-4 pb-3 border-b border-sidebar-border">
+        <img
+          src="/LOGO.png"
+          alt="Blue Motors"
+          style={{ width: '148px', mixBlendMode: 'multiply', filter: 'brightness(1.3) saturate(1.2)' }}
+        />
+        <span className="text-[9px] tracking-widest uppercase font-medium mt-1.5" style={{ color: 'rgba(255,255,255,0.35)' }}>
+          Sistema de Gestión
+        </span>
       </div>
 
       {/* Nav */}
@@ -73,7 +80,7 @@ export function Sidebar({ user }: SidebarProps) {
         {visible.map((item, i) => {
           if (item.type === "separator") {
             return (
-              <p key={i} className="px-3 pt-4 pb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50 select-none">
+              <p key={i} className="px-3 pt-4 pb-1 text-[10px] font-semibold uppercase tracking-widest select-none" style={{ color: 'oklch(0.92 0 0 / 35%)' }}>
                 {item.label}
               </p>
             );
@@ -83,12 +90,15 @@ export function Sidebar({ user }: SidebarProps) {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`relative flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                 isActive
-                  ? "bg-foreground text-background"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                  : "text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent"
               }`}
             >
+              {isActive && (
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full" style={{ backgroundColor: '#4A90D9' }} />
+              )}
               <item.icon size={16} className="shrink-0" />
               <span className="flex-1">{item.label}</span>
               {isActive && <ChevronRight size={14} className="opacity-60" />}
@@ -98,14 +108,14 @@ export function Sidebar({ user }: SidebarProps) {
       </nav>
 
       {/* User + logout */}
-      <div className="px-3 py-4 border-t space-y-1">
+      <div className="px-3 py-4 border-t border-sidebar-border space-y-1">
         <div className="px-3 py-2">
-          <p className="text-sm font-medium truncate">{user.name}</p>
-          <p className="text-xs text-muted-foreground">{ROLE_LABEL[user.role]}</p>
+          <p className="text-sm font-medium truncate text-sidebar-foreground">{user.name}</p>
+          <p className="text-xs text-sidebar-foreground/50">{ROLE_LABEL[user.role]}</p>
         </div>
         <button
           onClick={() => signOut({ callbackUrl: "/login" })}
-          className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
         >
           <LogOut size={16} className="shrink-0" />
           Salir

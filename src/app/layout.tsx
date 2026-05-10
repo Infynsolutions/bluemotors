@@ -13,6 +13,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className="h-full antialiased">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@900&display=swap" rel="stylesheet" />
+      </head>
       <body className="min-h-full bg-background text-foreground" style={{ fontFamily: "Arial, sans-serif" }}>
         {children}
       </body>
