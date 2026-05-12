@@ -68,9 +68,9 @@ export function Sidebar({ user }: SidebarProps) {
         <img
           src="/LOGO.png"
           alt="Blue Motors"
-          style={{ width: '148px', mixBlendMode: 'multiply', filter: 'brightness(1.3) saturate(1.2)' }}
+          style={{ width: '148px', mixBlendMode: 'multiply' }}
         />
-        <span className="text-[9px] tracking-widest uppercase font-medium mt-1.5" style={{ color: 'rgba(255,255,255,0.35)' }}>
+        <span className="text-[9px] tracking-widest uppercase font-medium mt-1.5" style={{ color: 'oklch(0.14 0.06 254 / 45%)' }}>
           Sistema de Gestión
         </span>
       </div>
@@ -80,7 +80,7 @@ export function Sidebar({ user }: SidebarProps) {
         {visible.map((item, i) => {
           if (item.type === "separator") {
             return (
-              <p key={i} className="px-3 pt-4 pb-1 text-[10px] font-semibold uppercase tracking-widest select-none" style={{ color: 'oklch(0.92 0 0 / 35%)' }}>
+              <p key={i} className="px-3 pt-4 pb-1 text-[10px] font-semibold uppercase tracking-widest select-none" style={{ color: 'oklch(0.14 0.06 254 / 45%)' }}>
                 {item.label}
               </p>
             );
